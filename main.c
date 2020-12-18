@@ -55,7 +55,7 @@ int main(int argc, char** argv){
 
 		// memory address
 		strncpy(pno, token, 5);
-		
+
 		token = strtok(NULL, " \n");
 		// R or W
 	}
@@ -66,6 +66,13 @@ int main(int argc, char** argv){
 	}else{
 		printf("2nd chance\n");
 	}
+
+	//print stats
+	printf("Total writes: %d\n", writes);
+	printf("Total reads: %d\n", reads);
+	printf("Total faults: %d\n", faults);
+	printf("Total hits: %d\n", hits);
+	printf("Frames: %d\n", frames);
 
 	return 0;
 	
