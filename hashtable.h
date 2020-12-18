@@ -12,6 +12,6 @@ typedef struct hashtable{
 
 }hashtable;
 
-
+int hash_function(unsigned char *str, int buckets);
 
 #endif

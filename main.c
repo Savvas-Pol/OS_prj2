@@ -4,13 +4,19 @@
 
 #include "hashtable.h"
 
+#define SIZE 4096
+
 int main(int argc, char** argv){
 	
 	/*	---	DECLARATIONS	---	*/
 
 	int frames, q, max;
 	int reads = 0, writes = 0, faults = 0, hits = 0;
-	char* alg;
+
+	char* alg, *token, *pno;
+	char* line = NULL;
+	size_t len = 0;
+	ssize_t read;
 
 	FILE *fileA, *fileB;
 
@@ -39,7 +45,27 @@ int main(int argc, char** argv){
 		return -1;
 	}
 
+	//create hashtable
 
+
+	pno = malloc(5);								// first 5 characters are page number
+	//read files
+	while ((read = getline(&line, &len, fileA)) != -1){					//line by line in bzip.trace
+		token = strtok(line, " \n");									//word by word
+
+		// memory address
+		strncpy(pno, token, 5);
+		
+		token = strtok(NULL, " \n");
+		// R or W
+	}
+
+	if(!(strcmp(alg, "LRU"))){
+
+
+	}else{
+		printf("2nd chance\n");
+	}
 
 	return 0;
 	
