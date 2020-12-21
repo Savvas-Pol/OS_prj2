@@ -10,7 +10,7 @@ int main(int argc, char** argv){
 	
 	/*	---	DECLARATIONS	---	*/
 
-	int frames, q, max;
+	int frames, q, max, i, j, t;
 	int reads = 0, writes = 0, faults = 0, hits = 0;
 
 	char* alg, *token, *pno;
@@ -46,29 +46,71 @@ int main(int argc, char** argv){
 	}
 
 	//create hashtable
-
-
-	pno = malloc(5);								// first 5 characters are page number
-	//read files
-	while ((read = getline(&line, &len, fileA)) != -1){					//line by line in bzip.trace
-		token = strtok(line, " \n");									//word by word
-
-		// memory address
-		strncpy(pno, token, 5);
-
-		token = strtok(NULL, " \n");
-		// R or W
+	hashtable** ht = (hashtable**)malloc(20*sizeof(hashtable*));
+	for(i = 0; i < 20; i++){
+		ht[i] = (hashtable*)malloc(sizeof(hashtable));
 	}
 
-	if(!(strcmp(alg, "LRU"))){
+	t = 0;				// time
+	i = 0;				// counter for max 
+
+	pno = malloc(5);								// first 5 characters are the page number
+
+	while(i < max){
+		j = 0;				// counter for switching between files
+
+		while(j < q){
+			if(i == max)
+				break;
+			if((read = getline(&line, &len, fileA)) != -1){					//line by line in bzip.trace
+				
+				token = strtok(line, " \n");									//word by word
+
+				// memory address
+				strncpy(pno, token, 5);
+				printf("%d bzip %d : %s\n",  i, j, pno);
+				token = strtok(NULL, " \n");
+				// R or W
+
+				j++;
+				i++;
+			}
+		}
+		if(i == max)
+			break;
+
+		j = 0;				// counter for switching between files
+		
+		while(j < q){
+			if(i == max)
+				break;
+			if((read = getline(&line, &len, fileB)) != -1){					//line by line in gcc.trace
+				
+				token = strtok(line, " \n");									//word by word
+
+				// memory address
+				strncpy(pno, token, 5);
+				printf("%d gcc %d : %s\n",  i, j, pno);
+				token = strtok(NULL, " \n");
+				// R or W
+
+				j++;
+				i++;
+			}
+		}
+		if(i == max)
+			break;
+
+		if(!(strcmp(alg, "LRU"))){
 
 
-	}else{
-		printf("2nd chance\n");
+		}else{
+			printf("2nd chance\n");
+		}
 	}
 
 	//print stats
-	printf("Total writes: %d\n", writes);
+	printf("\nTotal writes: %d\n", writes);
 	printf("Total reads: %d\n", reads);
 	printf("Total faults: %d\n", faults);
 	printf("Total hits: %d\n", hits);
