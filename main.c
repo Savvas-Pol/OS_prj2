@@ -11,13 +11,15 @@ int main(int argc, char** argv){
 	
 	/*	---	DECLARATIONS	---	*/
 
-	int frames, q, max, i, j, t, count, pos, process;
+	int frames, q, max, i, j, t, count, pos, process, min;
 	int reads = 0, writes = 0, faults = 0, hits = 0;
 
 	char* alg, *token, *pno;
 	char* line = NULL;
 	size_t len = 0;
 	ssize_t read;
+
+	node* min_t;
 
 	FILE *fileA, *fileB;
 
@@ -72,25 +74,37 @@ int main(int argc, char** argv){
 
 				// memory address
 				strncpy(pno, token, 5);
-				// printf("%d bzip %d : %s ",  i, j, pno);
+
+				token = strtok(NULL, " \n");
+				// R or W
 
 				pos = hash_function(pno, HASHNODES);
 				if(!hash_search(ht, pos, pno, process)){		//search if already exists
 					faults++;
-					if(count < frames){
-						hash_insert(ht, pos, pno, t, process);		// insert at the end of current bucket
-						count++;
-					}
-					// else{			//page replacement
+					if(!strcmp(token, "W")){
+						if(count < frames){
+							hash_insert(ht, pos, pno, t, process);		// insert at the end of current bucket
+							count++;
+							printf("Count: %d\n", count);
+						}
+						else{			//page replacement
+							if(!strcmp(alg, "LRU")){	//LRU
 
-					// }
+								writes++;
+								min_t = search_min(ht, HASHNODES);
+
+								min_t->process = process;
+								strcpy(min_t->pno, pno);
+								min_t->t = t;
+								min_t->referenced = 0;
+							}
+							// else{						//2nd chance
+
+							// }
+						}
+					}
 				}else
 					hits++;
-
-
-				token = strtok(NULL, " \n");
-				// R or W
-				// printf("%s \n",  token);
 
 				j++;
 				i++;
@@ -101,9 +115,9 @@ int main(int argc, char** argv){
 			break;
 
 		j = 0;				// counter for switching between files
-		
+
 		while(j < q){
-			process = 0;			//gcc
+			process = 1;			//gcc
 			if(i == max)
 				break;
 			if((read = getline(&line, &len, fileB)) != -1){					//line by line in gcc.trace
@@ -125,6 +139,7 @@ int main(int argc, char** argv){
 			break;
 	}
 
+	// printf("%d\n", min);
 	// node* temp;
 	// for(i = 0; i < HASHNODES; i++){
 	// 	temp = ht[i];

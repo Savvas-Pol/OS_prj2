@@ -35,7 +35,7 @@ int hash_search(node** ht, int pos, char* pno, int process){
 	return found;
 }
 
-void hash_insert(node**ht, int pos, char* pno, int t, int process){
+void hash_insert(node** ht, int pos, char* pno, int t, int process){
 
 	node* new;
 	node* temp = ht[pos];
@@ -61,5 +61,28 @@ void hash_insert(node**ht, int pos, char* pno, int t, int process){
 				temp = temp->next;
 		}
 	}
+
+}
+
+node* search_min(node** ht, int buckets){
+
+	int i, min = 2147483647;
+
+	node* min_t = NULL, *temp;
+
+	for(i = 0; i < buckets; i++){
+
+		temp = ht[i];
+
+		while(temp != NULL){
+			if(temp->t < min){
+				min = temp->t;
+				min_t = temp;
+				temp = temp->next;
+			}
+		}
+
+	}
+
 
 }

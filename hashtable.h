@@ -16,6 +16,8 @@ typedef struct node{
 int hash_function(unsigned char *str, int buckets);
 
 int hash_search(node** ht, int pos, char* pno, int process);
-void hash_insert(node**ht, int pos, char* pno, int t, int process);
+void hash_insert(node** ht, int pos, char* pno, int t, int process);
+
+node* search_min(node** ht, int buckets);
 
 #endif
