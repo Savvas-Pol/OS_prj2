@@ -1,23 +1,22 @@
 #ifndef HASHTABLE_H__
 #define	HASHTABLE_H__
 
-
-typedef struct node{
+typedef struct Node{
 
 	int process;		//0 for bzip, 1 for gcc 
 	char* pno;			//page number
 	int t;				//time of insertion
-	// int fno;			//frame number
+	int dirty;
 	int referenced;
-	struct node* next;	//pointer to next bucket node
+	struct Node* next;	//pointer to next bucket node
 
-}node;
+}Node;
 
 int hash_function(unsigned char *str, int buckets);
 
-int hash_search(node** ht, int pos, char* pno, int process);
-void hash_insert(node** ht, int pos, char* pno, int t, int process);
+Node* hash_search(Node** ht, int pos, char* pno, int process);
+void hash_insert(Node** ht, int pos, char* pno, int t, int process, char * token);
 
-node* search_min(node** ht, int buckets);
+Node* search_min_LRU(Node** ht, int buckets);
 
 #endif

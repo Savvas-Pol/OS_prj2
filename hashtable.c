@@ -12,42 +12,41 @@ int hash_function(unsigned char *str, int buckets){
     while (c = *str++)
         hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
 
-    return hash%buckets;
+    return hash % buckets;
 }
 
-int hash_search(node** ht, int pos, char* pno, int process){
+Node* hash_search(Node** ht, int pos, char* pno, int process){	// search node with this pno and process
 
-	int found = 0;
-	node* temp = ht[pos];
+	Node* temp = ht[pos];
 
-	while(temp != NULL && found == 0){
+	while(temp != NULL){
 		if(!strcmp(temp->pno, pno)){
 			if(temp->process == process)
-				found = 1;
+				return temp;
 		}
 		temp = temp->next;
 	}
-	// if(found == 0)
-	// 	printf("%s NOT FOUND pos:%d\n", pno, pos);
-	// else
-	// 	printf("%s FOUND pos:%d\n", pno, pos);
-
-	return found;
+	return temp;
 }
 
-void hash_insert(node** ht, int pos, char* pno, int t, int process){
+void hash_insert(Node** ht, int pos, char* pno, int t, int process, char * token){	// insert in hashtable
 
-	node* new;
-	node* temp = ht[pos];
+	Node* new;
+	Node* temp = ht[pos];
 
-	new = (node*)malloc(sizeof(node));
+	new = (Node*)malloc(sizeof(Node));
 
 	new->process = process;
-	new->pno = malloc(strlen(pno));
+	new->pno = (char*)malloc(strlen(pno));
 	strcpy(new->pno, pno);
 	new->t = t;
 	new->referenced = 0;
 	new->next = NULL;
+
+	if(!strcmp(token, "W"))
+		new->dirty = 1;
+	else
+		new->dirty = 0;
 
 	if(ht[pos] == NULL)
 		ht[pos] = new;
@@ -64,11 +63,11 @@ void hash_insert(node** ht, int pos, char* pno, int t, int process){
 
 }
 
-node* search_min(node** ht, int buckets){
+Node* search_min_LRU(Node** ht, int buckets){	// search node with min t in hashtable
 
 	int i, min = 2147483647;
 
-	node* min_t = NULL, *temp;
+	Node* min_t = NULL, *temp;
 
 	for(i = 0; i < buckets; i++){
 
@@ -84,5 +83,5 @@ node* search_min(node** ht, int buckets){
 
 	}
 
-
+	return min_t;
 }

@@ -7,6 +7,8 @@
 #define SIZE 4096
 #define HASHNODES 20
 
+// ./main LRU 100 10 1000
+
 int main(int argc, char** argv){
 	
 	/*	---	DECLARATIONS	---	*/
@@ -19,7 +21,7 @@ int main(int argc, char** argv){
 	size_t len = 0;
 	ssize_t read;
 
-	node* min_t;
+	Node* node, *min_t;
 
 	FILE *fileA, *fileB;
 
@@ -49,62 +51,78 @@ int main(int argc, char** argv){
 	}
 
 	//create hashtable
-	node** ht = (node**)malloc(HASHNODES*sizeof(node*));
+	Node** ht = (Node**)malloc(HASHNODES*sizeof(Node*));
 	for(i = 0; i < HASHNODES; i++){
-		ht[i] = (node*)malloc(sizeof(node));
 		ht[i] = NULL;
 	}
 
-	t = 0;				// time
-	i = 0;				// counter for max 
-	count = 0;			// counter for frames
+	t = 0;			// time
+	i = 0;			// counter for max 
+	count = 0;		// counter for frames
 
-	pno = malloc(5);								// first 5 characters are the page number
+	pno = (char*)malloc(6);		// first 5 characters are the page number
 
 	while(i < max){
-		j = 0;				// counter for switching between files
+		j = 0;	// counter for switching between files
 
 		while(j < q){
-			process = 0;			//bzip
+			process = 0;	//bzip
 			if(i == max)
 				break;
-			if((read = getline(&line, &len, fileA)) != -1){					//line by line in bzip.trace
+
+			if((read = getline(&line, &len, fileA)) != -1){	//line by line in bzip.trace
 				
-				token = strtok(line, " \n");									//word by word
+				token = strtok(line, " \n");	//word by word
 
 				// memory address
 				strncpy(pno, token, 5);
 
-				token = strtok(NULL, " \n");
 				// R or W
-
+				token = strtok(NULL, " \n");
+				
 				pos = hash_function(pno, HASHNODES);
-				if(!hash_search(ht, pos, pno, process)){		//search if already exists
+				if(!(node = hash_search(ht, pos, pno, process))){	//search if already exists
 					faults++;
-					if(!strcmp(token, "W")){
-						if(count < frames){
-							hash_insert(ht, pos, pno, t, process);		// insert at the end of current bucket
-							count++;
-							printf("Count: %d\n", count);
-						}
-						else{			//page replacement
-							if(!strcmp(alg, "LRU")){	//LRU
+					reads++;
 
-								writes++;
-								min_t = search_min(ht, HASHNODES);
-
-								min_t->process = process;
-								strcpy(min_t->pno, pno);
-								min_t->t = t;
-								min_t->referenced = 0;
-							}
-							// else{						//2nd chance
-
-							// }
-						}
+					if(count < frames){		// check if there is enough memory
+						hash_insert(ht, pos, pno, t, process, token);	// insert at the end of current bucket
+						count++;
 					}
-				}else
+					else{	//page replacement
+						if(!strcmp(alg, "LRU")){	//LRU
+
+							min_t = search_min_LRU(ht, HASHNODES);
+							
+						}// else{	//2nd chance
+
+						// }
+
+						if(min_t->dirty == 1)
+							writes++;
+
+						// remove a page
+						min_t->process = process;
+						strcpy(min_t->pno, pno);
+						min_t->t = t;
+						min_t->referenced = 0;
+
+
+						// insert the new one
+					}
+				}else{
 					hits++;
+
+					if (!strcmp(token, "W")) {
+						node->dirty = 1;
+					}
+
+					if (!strcmp(alg, "LRU")) {
+						node->t = t;
+					} //else {		//2nd chance
+
+					// }
+				}
 
 				j++;
 				i++;
@@ -114,22 +132,23 @@ int main(int argc, char** argv){
 		if(i == max)
 			break;
 
-		j = 0;				// counter for switching between files
+		j = 0;		// counter for switching between files
 
 		while(j < q){
-			process = 1;			//gcc
+			process = 1;	//gcc
 			if(i == max)
 				break;
-			if((read = getline(&line, &len, fileB)) != -1){					//line by line in gcc.trace
+
+			if((read = getline(&line, &len, fileB)) != -1){		//line by line in gcc.trace
 				
-				token = strtok(line, " \n");									//word by word
+				token = strtok(line, " \n");	//word by word
 
 				// memory address
 				strncpy(pno, token, 5);
-				// printf("%d gcc %d : %s ",  i, j, pno);
-				token = strtok(NULL, " \n");
+				
 				// R or W
-				// printf("%s \n",  token);
+				token = strtok(NULL, " \n");
+				
 				j++;
 				i++;
 				t++;
@@ -140,7 +159,7 @@ int main(int argc, char** argv){
 	}
 
 	// printf("%d\n", min);
-	// node* temp;
+	// Node* temp;
 	// for(i = 0; i < HASHNODES; i++){
 	// 	temp = ht[i];
 	// 	if(temp == NULL)
