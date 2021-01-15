@@ -63,6 +63,30 @@ void hash_insert(Node** ht, int pos, char* pno, int t, int process, char * token
 
 }
 
+void hash_delete(Node** ht, int pos, char* pno, int process){
+
+	Node* temp = ht[pos], *temp2;
+	int first = 1;					// flag to check if we are in first node
+
+	while(temp != NULL){
+		if(!strcmp(temp->pno, pno)){
+			if(temp->process == process){
+				if(first)
+					ht[pos] = temp->next;
+				else
+					temp2->next = temp->next;
+
+				free(temp->pno);
+				free(temp);
+				return;
+			}
+		}
+		temp2 = temp;
+		temp = temp->next;
+		first = 0;
+	}
+}
+
 Node* search_min_LRU(Node** ht, int buckets){	// search node with min t in hashtable
 
 	int i, min = 2147483647;

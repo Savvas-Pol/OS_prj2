@@ -13,7 +13,7 @@ int main(int argc, char** argv){
 	
 	/*	---	DECLARATIONS	---	*/
 
-	int frames, q, max, i, j, t, count, pos, process, min;
+	int frames, q, max, i, j, t, count, pos, pos2, process, min;
 	int reads = 0, writes = 0, faults = 0, hits = 0;
 
 	char* alg, *token, *pno;
@@ -102,11 +102,21 @@ int main(int argc, char** argv){
 							writes++;
 
 						// remove a page
-						min_t->process = process;
-						strcpy(min_t->pno, pno);
-						min_t->t = t;
-						min_t->referenced = 0;
-
+						pos2 = hash_function(min_t->pno, HASHNODES);
+						if(pos == pos2){				// if min_t is in the same hashtable node then just replace
+							min_t->process = process;
+							strcpy(min_t->pno, pno);
+							min_t->t = t;
+							min_t->referenced = 0;
+							if(!strcmp(token, "W"))
+								min_t->dirty = 1;
+							else
+								min_t->dirty = 0;
+						}
+						else{					//else delete min_t node and insert new node in its hashtable position
+							hash_delete(ht, pos2, min_t->pno, min_t->process);
+							hash_insert(ht, pos, pno, t, process, token);
+						}
 
 						// insert the new one
 					}
@@ -171,11 +181,12 @@ int main(int argc, char** argv){
 	// }
 
 	//print stats
+	printf("STATISTICS\n");
 	printf("\nTotal writes: %d\n", writes);
 	printf("Total reads: %d\n", reads);
 	printf("Total faults: %d\n", faults);
 	printf("Total hits: %d\n", hits);
-	printf("Frames: %d\n", frames);
+	printf("\nFrames: %d\n", frames);
 
 	return 0;
 	
