@@ -54,7 +54,7 @@ void hash_insert(Node** ht, int pos, char* pno, int t, int process, char * token
 		while(temp != NULL){
 			if(temp->next == NULL){
 				temp->next = new;
-				break;
+				return;
 			}
 			else
 				temp = temp->next;
@@ -87,25 +87,22 @@ void hash_delete(Node** ht, int pos, char* pno, int process){
 	}
 }
 
-Node* search_min_LRU(Node** ht, int buckets){	// search node with min t in hashtable
+Node* search_min(Node** ht, int buckets){	// search node with min t in hashtable
 
-	int i, min = 2147483647;
+	int i, min = 2147483647;	//max int value
 
-	Node* min_t = NULL, *temp;
+	Node* min_t, *temp;
 
 	for(i = 0; i < buckets; i++){
-
 		temp = ht[i];
 
 		while(temp != NULL){
 			if(temp->t < min){
 				min = temp->t;
 				min_t = temp;
-				temp = temp->next;
 			}
+			temp = temp->next;
 		}
-
 	}
-
 	return min_t;
 }

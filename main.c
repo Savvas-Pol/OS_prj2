@@ -5,7 +5,7 @@
 #include "hashtable.h"
 
 #define SIZE 4096
-#define HASHNODES 20
+#define HASHNODES 100
 
 // ./main LRU 100 10 1000
 
@@ -64,14 +64,14 @@ int main(int argc, char** argv){
 
 	while(i < max){
 		j = 0;	// counter for switching between files
-
+		printf("bzip i = %d\n",i);
 		while(j < q){
 			process = 0;	//bzip
 			if(i == max)
 				break;
 
 			if((read = getline(&line, &len, fileA)) != -1){	//line by line in bzip.trace
-				
+				printf("-----------------\n");
 				token = strtok(line, " \n");	//word by word
 
 				// memory address
@@ -90,48 +90,68 @@ int main(int argc, char** argv){
 						count++;
 					}
 					else{	//page replacement
-						if(!strcmp(alg, "LRU")){	//LRU
+						// if(!strcmp(alg, "LRU")){	//LRU
 
-							min_t = search_min_LRU(ht, HASHNODES);
+						// 	min_t = search_min_LRU(ht, HASHNODES);
 							
-						}// else{	//2nd chance
-
 						// }
+						// else{	//2nd chance
+						// 	min_t = search_min_2ndChance();
+						// }
+						min_t = search_min(ht, HASHNODES);
 
 						if(min_t->dirty == 1)
 							writes++;
 
-						// remove a page
-						pos2 = hash_function(min_t->pno, HASHNODES);
-						if(pos == pos2){				// if min_t is in the same hashtable node then just replace
-							min_t->process = process;
-							strcpy(min_t->pno, pno);
-							min_t->t = t;
-							min_t->referenced = 0;
-							if(!strcmp(token, "W"))
-								min_t->dirty = 1;
-							else
-								min_t->dirty = 0;
+						if(!strcmp(alg, "LRU")){	//LRU
+							pos2 = hash_function(min_t->pno, HASHNODES);
+							if(pos == pos2){				// if min_t is in the same hashtable node then just replace
+								min_t->process = process;
+								strcpy(min_t->pno, pno);
+								min_t->t = t;
+								min_t->referenced = 0;
+								if(!strcmp(token, "W"))
+									min_t->dirty = 1;
+								else
+									min_t->dirty = 0;
+							}
+							else{					//else delete min_t node and insert new node in its hashtable position
+								hash_delete(ht, pos2, min_t->pno, min_t->process);
+								hash_insert(ht, pos, pno, t, process, token);
+							}
 						}
-						else{					//else delete min_t node and insert new node in its hashtable position
-							hash_delete(ht, pos2, min_t->pno, min_t->process);
-							hash_insert(ht, pos, pno, t, process, token);
+						else{	//2nd chance
+							if(min_t->referenced == 1){
+								min_t->t = t;				//give 2nd chance
+							}
+							else{
+								pos2 = hash_function(min_t->pno, HASHNODES);
+								if(pos == pos2){				// if min_t is in the same hashtable node then just replace
+									min_t->process = process;
+									strcpy(min_t->pno, pno);
+									min_t->t = t;
+									min_t->referenced = 0;
+									if(!strcmp(token, "W"))
+										min_t->dirty = 1;
+									else
+										min_t->dirty = 0;
+								}
+								else{					//else delete min_t node and insert new node in its hashtable position
+									hash_delete(ht, pos2, min_t->pno, min_t->process);
+									hash_insert(ht, pos, pno, t, process, token);
+								}
+							}
 						}
-
-						// insert the new one
 					}
 				}else{
 					hits++;
-
-					if (!strcmp(token, "W")) {
+					if (!strcmp(token, "W"))
 						node->dirty = 1;
-					}
 
-					if (!strcmp(alg, "LRU")) {
+					if (!strcmp(alg, "LRU"))
 						node->t = t;
-					} //else {		//2nd chance
-
-					// }
+					else		//2nd chance
+						node->referenced = 1;
 				}
 
 				j++;
@@ -145,12 +165,13 @@ int main(int argc, char** argv){
 		j = 0;		// counter for switching between files
 
 		while(j < q){
+			printf("gcc i = %d\n",i);
 			process = 1;	//gcc
 			if(i == max)
 				break;
 
 			if((read = getline(&line, &len, fileB)) != -1){		//line by line in gcc.trace
-				
+				printf("-----------------\n");
 				token = strtok(line, " \n");	//word by word
 
 				// memory address
@@ -158,7 +179,81 @@ int main(int argc, char** argv){
 				
 				// R or W
 				token = strtok(NULL, " \n");
-				
+
+				pos = hash_function(pno, HASHNODES);
+				if(!(node = hash_search(ht, pos, pno, process))){	//search if already exists
+					faults++;
+					reads++;
+
+					if(count < frames){		// check if there is enough memory
+						hash_insert(ht, pos, pno, t, process, token);	// insert at the end of current bucket
+						count++;
+					}
+					else{	//page replacement
+						// if(!strcmp(alg, "LRU")){	//LRU
+
+						// 	min_t = search_min_LRU(ht, HASHNODES);
+							
+						// }
+						// else{	//2nd chance
+						// 	min_t = search_min_2ndChance();
+						// }
+						
+						min_t = search_min(ht, HASHNODES);
+						if(min_t->dirty == 1)
+							writes++;
+
+						if(!strcmp(alg, "LRU")){	//LRU
+							pos2 = hash_function(min_t->pno, HASHNODES);
+							if(pos == pos2){				// if min_t is in the same hashtable node then just replace
+								min_t->process = process;
+								strcpy(min_t->pno, pno);
+								min_t->t = t;
+								min_t->referenced = 0;
+								if(!strcmp(token, "W"))
+									min_t->dirty = 1;
+								else
+									min_t->dirty = 0;
+							}
+							else{					//else delete min_t node and insert new node in its hashtable position
+								hash_delete(ht, pos2, min_t->pno, min_t->process);
+								hash_insert(ht, pos, pno, t, process, token);
+							}
+						}
+						else{	//2nd chance
+							if(min_t->referenced == 1){
+								min_t->t = t;				//give 2nd chance
+							}
+							else{
+								pos2 = hash_function(min_t->pno, HASHNODES);
+								if(pos == pos2){				// if min_t is in the same hashtable node then just replace
+									min_t->process = process;
+									strcpy(min_t->pno, pno);
+									min_t->t = t;
+									min_t->referenced = 0;
+									if(!strcmp(token, "W"))
+										min_t->dirty = 1;
+									else
+										min_t->dirty = 0;
+								}
+								else{					//else delete min_t node and insert new node in its hashtable position
+									hash_delete(ht, pos2, min_t->pno, min_t->process);
+									hash_insert(ht, pos, pno, t, process, token);
+								}
+							}
+						}
+					}
+				}else{
+					hits++;
+					if (!strcmp(token, "W"))
+						node->dirty = 1;
+
+					if (!strcmp(alg, "LRU"))
+						node->t = t;
+					else		//2nd chance
+						node->referenced = 1;
+				}
+
 				j++;
 				i++;
 				t++;
@@ -181,7 +276,7 @@ int main(int argc, char** argv){
 	// }
 
 	//print stats
-	printf("STATISTICS\n");
+	printf("STATISTICS FOR %s\n", alg);
 	printf("\nTotal writes: %d\n", writes);
 	printf("Total reads: %d\n", reads);
 	printf("Total faults: %d\n", faults);

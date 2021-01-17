@@ -18,6 +18,6 @@ Node* hash_search(Node** ht, int pos, char* pno, int process);
 void hash_insert(Node** ht, int pos, char* pno, int t, int process, char * token);
 void hash_delete(Node** ht, int pos, char* pno, int process);
 
-Node* search_min_LRU(Node** ht, int buckets);
+Node* search_min(Node** ht, int buckets);
 
 #endif
