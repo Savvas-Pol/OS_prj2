@@ -107,3 +107,25 @@ Node* search_min(Node** ht, int buckets){	// search node with min t in hashtable
 	}
 	return min_t;
 }
+
+void page_replacement(Node* min_t, int buckets, int pos, int process, char* pno, int t, char* token, Node** ht){
+
+	int pos2;
+	
+	pos2 = hash_function(min_t->pno, buckets);
+	if(pos == pos2){				// if min_t is in the same hashtable node then just replace
+		min_t->process = process;
+		strcpy(min_t->pno, pno);
+		min_t->t = t;
+		min_t->referenced = 0;
+		min_t->flag = 0;
+		if(!strcmp(token, "W"))
+			min_t->dirty = 1;
+		else
+			min_t->dirty = 0;
+	}
+	else{					//else delete min_t node and insert new node in its hashtable position
+		hash_delete(ht, pos2, min_t->pno, min_t->process);
+		hash_insert(ht, pos, pno, t, process, token);
+	}
+}

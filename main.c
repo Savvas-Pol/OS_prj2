@@ -7,7 +7,7 @@
 #define SIZE 4096
 #define HASHNODES 100
 
-// ./main LRU 100 10 1000
+// ./main LRU 10 100 10000
 
 int main(int argc, char** argv){
 	
@@ -88,36 +88,13 @@ int main(int argc, char** argv){
 						count++;
 					}
 					else{	//page replacement
-						// if(!strcmp(alg, "LRU")){	//LRU
-
-						// 	min_t = search_min_LRU(ht, HASHNODES);
-							
-						// }
-						// else{	//2nd chance
-						// 	min_t = search_min_2ndChance();
-						// }
 						min_t = search_min(ht, HASHNODES);
 
 						if(min_t->dirty == 1)
 							writes++;
 
 						if(!strcmp(alg, "LRU")){	//LRU
-							pos2 = hash_function(min_t->pno, HASHNODES);
-							if(pos == pos2){				// if min_t is in the same hashtable node then just replace
-								min_t->process = process;
-								strcpy(min_t->pno, pno);
-								min_t->t = t;
-								min_t->referenced = 0;
-								min_t->flag = 0;
-								if(!strcmp(token, "W"))
-									min_t->dirty = 1;
-								else
-									min_t->dirty = 0;
-							}
-							else{					//else delete min_t node and insert new node in its hashtable position
-								hash_delete(ht, pos2, min_t->pno, min_t->process);
-								hash_insert(ht, pos, pno, t, process, token);
-							}
+							page_replacement(min_t, HASHNODES, pos, process, pno, t, token, ht);
 						}
 						else{	//2nd chance
 							if((min_t->referenced == 1) && (min_t->flag == 0)){
@@ -126,22 +103,7 @@ int main(int argc, char** argv){
 								min_t->t = t;				//give 2nd chance
 							}
 							else{
-								pos2 = hash_function(min_t->pno, HASHNODES);
-								if(pos == pos2){				// if min_t is in the same hashtable node then just replace
-									min_t->process = process;
-									strcpy(min_t->pno, pno);
-									min_t->t = t;
-									min_t->referenced = 0;
-									min_t->flag = 0;
-									if(!strcmp(token, "W"))
-										min_t->dirty = 1;
-									else
-										min_t->dirty = 0;
-								}
-								else{					//else delete min_t node and insert new node in its hashtable position
-									hash_delete(ht, pos2, min_t->pno, min_t->process);
-									hash_insert(ht, pos, pno, t, process, token);
-								}
+								page_replacement(min_t, HASHNODES, pos, process, pno, t, token, ht);
 							}
 						}
 					}
@@ -190,36 +152,12 @@ int main(int argc, char** argv){
 						count++;
 					}
 					else{	//page replacement
-						// if(!strcmp(alg, "LRU")){	//LRU
-
-						// 	min_t = search_min_LRU(ht, HASHNODES);
-							
-						// }
-						// else{	//2nd chance
-						// 	min_t = search_min_2ndChance();
-						// }
-						
 						min_t = search_min(ht, HASHNODES);
 						if(min_t->dirty == 1)
 							writes++;
 
 						if(!strcmp(alg, "LRU")){	//LRU
-							pos2 = hash_function(min_t->pno, HASHNODES);
-							if(pos == pos2){				// if min_t is in the same hashtable node then just replace
-								min_t->process = process;
-								strcpy(min_t->pno, pno);
-								min_t->t = t;
-								min_t->referenced = 0;
-								min_t->flag = 0;
-								if(!strcmp(token, "W"))
-									min_t->dirty = 1;
-								else
-									min_t->dirty = 0;
-							}
-							else{					//else delete min_t node and insert new node in its hashtable position
-								hash_delete(ht, pos2, min_t->pno, min_t->process);
-								hash_insert(ht, pos, pno, t, process, token);
-							}
+							page_replacement(min_t, HASHNODES, pos, process, pno, t, token, ht);
 						}
 						else{	//2nd chance
 							if((min_t->referenced == 1) && (min_t->flag == 0)){
@@ -228,22 +166,7 @@ int main(int argc, char** argv){
 								min_t->t = t;				//give 2nd chance
 							}
 							else{
-								pos2 = hash_function(min_t->pno, HASHNODES);
-								if(pos == pos2){				// if min_t is in the same hashtable node then just replace
-									min_t->process = process;
-									strcpy(min_t->pno, pno);
-									min_t->t = t;
-									min_t->referenced = 0;
-									min_t->flag = 0;
-									if(!strcmp(token, "W"))
-										min_t->dirty = 1;
-									else
-										min_t->dirty = 0;
-								}
-								else{					//else delete min_t node and insert new node in its hashtable position
-									hash_delete(ht, pos2, min_t->pno, min_t->process);
-									hash_insert(ht, pos, pno, t, process, token);
-								}
+								page_replacement(min_t, HASHNODES, pos, process, pno, t, token, ht);
 							}
 						}
 					}
@@ -266,18 +189,6 @@ int main(int argc, char** argv){
 		if(i == max)
 			break;
 	}
-
-	// printf("%d\n", min);
-	// Node* temp;
-	// for(i = 0; i < HASHNODES; i++){
-	// 	temp = ht[i];
-	// 	if(temp == NULL)
-	// 		printf("ht[%d] is NULL\n", i);
-	// 	while(temp != NULL){
-	// 		printf("ht[%d] pno: %s t = %d\n",i, temp->pno, temp->t);
-	// 		temp = temp->next;
-	// 	}
-	// }
 
 	//print stats
 	printf("STATISTICS FOR %s\n", alg);
