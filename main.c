@@ -64,14 +64,12 @@ int main(int argc, char** argv){
 
 	while(i < max){
 		j = 0;	// counter for switching between files
-		printf("bzip i = %d\n",i);
 		while(j < q){
 			process = 0;	//bzip
 			if(i == max)
 				break;
 
 			if((read = getline(&line, &len, fileA)) != -1){	//line by line in bzip.trace
-				printf("-----------------\n");
 				token = strtok(line, " \n");	//word by word
 
 				// memory address
@@ -110,6 +108,7 @@ int main(int argc, char** argv){
 								strcpy(min_t->pno, pno);
 								min_t->t = t;
 								min_t->referenced = 0;
+								min_t->flag = 0;
 								if(!strcmp(token, "W"))
 									min_t->dirty = 1;
 								else
@@ -121,7 +120,9 @@ int main(int argc, char** argv){
 							}
 						}
 						else{	//2nd chance
-							if(min_t->referenced == 1){
+							if((min_t->referenced == 1) && (min_t->flag == 0)){
+								min_t->referenced = 0;
+								min_t->flag = 1;
 								min_t->t = t;				//give 2nd chance
 							}
 							else{
@@ -131,6 +132,7 @@ int main(int argc, char** argv){
 									strcpy(min_t->pno, pno);
 									min_t->t = t;
 									min_t->referenced = 0;
+									min_t->flag = 0;
 									if(!strcmp(token, "W"))
 										min_t->dirty = 1;
 									else
@@ -165,13 +167,11 @@ int main(int argc, char** argv){
 		j = 0;		// counter for switching between files
 
 		while(j < q){
-			printf("gcc i = %d\n",i);
 			process = 1;	//gcc
 			if(i == max)
 				break;
 
 			if((read = getline(&line, &len, fileB)) != -1){		//line by line in gcc.trace
-				printf("-----------------\n");
 				token = strtok(line, " \n");	//word by word
 
 				// memory address
@@ -210,6 +210,7 @@ int main(int argc, char** argv){
 								strcpy(min_t->pno, pno);
 								min_t->t = t;
 								min_t->referenced = 0;
+								min_t->flag = 0;
 								if(!strcmp(token, "W"))
 									min_t->dirty = 1;
 								else
@@ -221,7 +222,9 @@ int main(int argc, char** argv){
 							}
 						}
 						else{	//2nd chance
-							if(min_t->referenced == 1){
+							if((min_t->referenced == 1) && (min_t->flag == 0)){
+								min_t->referenced = 0;
+								min_t->flag = 1;
 								min_t->t = t;				//give 2nd chance
 							}
 							else{
@@ -231,6 +234,7 @@ int main(int argc, char** argv){
 									strcpy(min_t->pno, pno);
 									min_t->t = t;
 									min_t->referenced = 0;
+									min_t->flag = 0;
 									if(!strcmp(token, "W"))
 										min_t->dirty = 1;
 									else
@@ -281,7 +285,8 @@ int main(int argc, char** argv){
 	printf("Total reads: %d\n", reads);
 	printf("Total faults: %d\n", faults);
 	printf("Total hits: %d\n", hits);
-	printf("\nFrames: %d\n", frames);
+	printf("\nTotal entries checked: %d\n", max);
+	printf("Frames: %d\n", frames);
 
 	return 0;
 	

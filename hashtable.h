@@ -8,6 +8,7 @@ typedef struct Node{
 	int t;				//time of insertion
 	int dirty;
 	int referenced;
+	int flag;			//flag to check if current entry is given a 2nd chance
 	struct Node* next;	//pointer to next bucket node
 
 }Node;

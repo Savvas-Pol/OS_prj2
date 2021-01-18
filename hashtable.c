@@ -41,6 +41,7 @@ void hash_insert(Node** ht, int pos, char* pno, int t, int process, char * token
 	strcpy(new->pno, pno);
 	new->t = t;
 	new->referenced = 0;
+	new->flag = 0;
 	new->next = NULL;
 
 	if(!strcmp(token, "W"))
