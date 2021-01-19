@@ -27,8 +27,7 @@ int main(int argc, char** argv){
 
 	/*	------------	*/
 
-	//	get command line arguments
-	if(argc == 5){
+	if(argc == 5){						//	get command line arguments
 		alg = malloc(strlen(argv[1]));
 		strcpy(alg, argv[1]);
 		frames = atoi(argv[2]);
@@ -40,8 +39,7 @@ int main(int argc, char** argv){
 		return -1;
 	}
 
-	//	open files
-	if(!(fileA = fopen("bzip.trace", "r"))){
+	if(!(fileA = fopen("bzip.trace", "r"))){		//	open files
 		printf("Error in opening bzip.trace\n");
 		return -1;
 	}
@@ -50,8 +48,7 @@ int main(int argc, char** argv){
 		return -1;
 	}
 
-	//create hashtable
-	Node** ht = (Node**)malloc(HASHNODES*sizeof(Node*));
+	Node** ht = (Node**)malloc(HASHNODES*sizeof(Node*));		//create hashtable
 	for(i = 0; i < HASHNODES; i++){
 		ht[i] = NULL;
 	}
@@ -72,11 +69,9 @@ int main(int argc, char** argv){
 			if((read = getline(&line, &len, fileA)) != -1){	//line by line in bzip.trace
 				token = strtok(line, " \n");	//word by word
 
-				// memory address
-				strncpy(pno, token, 5);
+				strncpy(pno, token, 5);		// memory address
 
-				// R or W
-				token = strtok(NULL, " \n");
+				token = strtok(NULL, " \n");	// R or W
 				
 				pos = hash_function(pno, HASHNODES);
 				if(!(node = hash_search(ht, pos, pno, process))){	//search if already exists
@@ -136,11 +131,9 @@ int main(int argc, char** argv){
 			if((read = getline(&line, &len, fileB)) != -1){		//line by line in gcc.trace
 				token = strtok(line, " \n");	//word by word
 
-				// memory address
-				strncpy(pno, token, 5);
-				
-				// R or W
-				token = strtok(NULL, " \n");
+				strncpy(pno, token, 5);		// memory address
+
+				token = strtok(NULL, " \n");	// R or W
 
 				pos = hash_function(pno, HASHNODES);
 				if(!(node = hash_search(ht, pos, pno, process))){	//search if already exists
@@ -190,14 +183,7 @@ int main(int argc, char** argv){
 			break;
 	}
 
-	//print stats
-	printf("STATISTICS FOR %s\n", alg);
-	printf("\nTotal writes: %d\n", writes);
-	printf("Total reads: %d\n", reads);
-	printf("Total faults: %d\n", faults);
-	printf("Total hits: %d\n", hits);
-	printf("\nTotal entries checked: %d\n", max);
-	printf("Frames: %d\n", frames);
+	print_stats(alg, writes, reads, faults, hits, max, frames);
 
 	return 0;
 	

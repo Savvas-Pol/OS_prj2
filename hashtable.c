@@ -129,3 +129,15 @@ void page_replacement(Node* min_t, int buckets, int pos, int process, char* pno,
 		hash_insert(ht, pos, pno, t, process, token);
 	}
 }
+
+void print_stats(char* alg, int writes, int reads, int faults,  int hits, int max, int frames){
+
+	printf("STATISTICS FOR %s\n", alg);
+	printf("\nTotal writes: %d\n", writes);
+	printf("Total reads: %d\n", reads);
+	printf("Total faults: %d\n", faults);
+	printf("Total hits: %d\n", hits);
+	printf("\nTotal entries checked: %d\n", max);
+	printf("Frames: %d\n", frames);
+
+}

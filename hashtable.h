@@ -21,5 +21,6 @@ void hash_delete(Node** ht, int pos, char* pno, int process);
 
 Node* search_min(Node** ht, int buckets);
 void page_replacement(Node* min_t, int buckets, int pos, int process, char* pno, int t, char* token, Node** ht);
+void print_stats(char* alg, int writes, int reads, int faults,  int hits, int max, int frames);
 
 #endif
